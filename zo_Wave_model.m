@@ -25,7 +25,7 @@
 %%%             * - Domain size (Lx, Ly) and resolution (nx, ny)             %%%
 %%%                                                                          %%%
 %%%                                                                          %%%
-%%% Script developed by: Manuel Ayala                                        %%%
+%%% Script developed by: Manuel Ayala  (mayala5@jhu.edu)                     %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear;clc
 
