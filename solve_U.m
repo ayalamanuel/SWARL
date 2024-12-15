@@ -10,7 +10,7 @@
 %%%     - Make sure that delta is normalized by the same length scale used   %%%
 %%%       in the turbulent Reynolds number (Ret)                             %%%
 %%%                                                                          %%%
-%%% Script developed by: Manuel Ayala                                        %%%
+%%% Script developed by: Manuel Ayala (mayala5@jhu.edu)                      %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -42,34 +42,32 @@ function [U] = solve_U(detadx, grad, nx, ny, c_x, c_y, delta, Ret, zo, flag, max
         % Convert to derivative with respect to U
         dc_f_dU = dc_f_dRe * (delta * Ret);
         
-        % Calculate W
+        % Calculate L
         alpha = atan(grad);
         cx_term = 1 - c_x./U_current;
         term1 = (nx.^2) .* (cx_term.^2);
         term2 = (ny.^2) .* ((c_y./U_current).^2);
-        
         numer = nx .* cx_term;
         dir_term = (numer + abs(numer))./numer;
+        L = mean((alpha./(pi + alpha)) .* (term1 + term2) .* detadx .* 0.5 .* dir_term, 'all');
+        L = L + 0.5*c_f;
+
+        % Calculate f
+        f = U_current - 1/sqrt(L);
         
-        Lambda = mean((alpha./(pi + alpha)) .* (term1 + term2) .* detadx .* 0.5 .* dir_term, 'all');
-        Lambda = Lambda + 0.5*c_f;
-        
-        f = U_current - 1/sqrt(Lambda);
-        
-        % Calculate dW/dU
+        % Calculate dL/dU
         dcx_term_dU = c_x./U_current^2;
         dterm1_dU = 2 * (nx.^2) .* cx_term .* dcx_term_dU;
         dterm2_dU = -2 * (ny.^2) .* (c_y.^2./U_current^3);
-        
         dnumer_dU = nx .* dcx_term_dU;
         ddir_dU = (dnumer_dU .* numer - (numer + abs(numer)) .* dnumer_dU) ./ numer.^2;
-        
-        dW_avg_dU = mean((alpha./(pi + alpha)) .* (...
+        dL_avg_dU = mean((alpha./(pi + alpha)) .* (...
             (dterm1_dU + dterm2_dU) .* detadx .* 0.5 .* dir_term + ...
             (term1 + term2) .* detadx .* 0.5 .* ddir_dU ), 'all');
-        
-        dW_dU = dW_avg_dU + 0.5*dc_f_dU;
-        df = 1 + (1/2) * Lambda^(-3/2) * dW_dU;
+        dL_dU = dL_avg_dU + 0.5*dc_f_dU;
+
+        % Calculate df
+        df = 1 + (1/2) * L^(-3/2) * dL_dU;
     end
     
     % Newton-Raphson iteration
