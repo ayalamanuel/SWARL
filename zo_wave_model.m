@@ -15,6 +15,7 @@
 %%%             * - Peak wavenumber of wave (kp) in meters                   %%%
 %%%             * - Domain size (Lx, Ly) and resolution (nx, ny)             %%%
 %%%             * - Significant wave height (Hs) in meters                   %%%
+%%%             * - Time step between realizations (dt) in seconds           %%%
 %%%                                                                          %%%
 %%%     - If using monochromatic wave case, the following is loaded:         %%%
 %%%             * - 2 realizations of the wavy surface (eta)                 %%%
@@ -23,6 +24,7 @@
 %%%             * - Height of boundary layer, used for Ret (h)               %%%
 %%%             * - Amplitude of wave, normalized by h (amp)                 %%%
 %%%             * - Domain size (Lx, Ly) and resolution (nx, ny)             %%%
+%%%             * - Time step between realizations (dt) in seconds           %%%
 %%%                                                                          %%%
 %%%                                                                          %%%
 %%% Script developed by: Manuel Ayala  (mayala5@jhu.edu)                     %%%
@@ -32,12 +34,11 @@ clear;clc
 %%% Select the wave type and the surface case:
 % - Monochromatic --> "mono"
 % - Multiscale    --> "multi"
-wave_type = 'multi';
-load("Surfaces/Y2.mat");
+wave_type = 'mono';
+load("Surfaces/B5.mat");
 
 %%% Calculating the spatial gradients, temporal gradients and the wave velocity
 %  - If multiscale case selected, a clipping of cx and cy will be applied
-dt = 0.001; 
 detadt = (eta_t2 - eta_t1)/dt;          
 detadx = diff(eta_t2,1,1)/(Lx/nx);              
 detady = diff(eta_t2,1,2)/(Ly/ny);              
@@ -108,10 +109,10 @@ lambda = 1/U^2;
 %%% Calculating surface roughness for wavy surface (zo) normalized 
 %%% by the wave significant wave height (multiscale)
 %%% or by wave amplitude (monochromatic)
-zo_wave_model = delta*exp(-kappa*(1/sqrt(lambda)));
+zo_model = delta*exp(-kappa*(1/sqrt(lambda)));
 if strcmp(wave_type, 'multi')
-zo_wave_model = zo_wave_model*lambdap/Hs_measured;
+zo_model = zo_model*lambdap/Hs_measured;
 else
-zo_wave_model = zo_wave_model*(1/amp);
+zo_model = zo_model*(1/amp);
 end
-fprintf('zo_wave_model: %.6f\n', zo_wave_model);
+fprintf('zo_wave_model: %.6f\n', zo_model);
